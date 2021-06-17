@@ -26,5 +26,40 @@ class NinoxModelNinox extends JModelLegacy {
 		$this->last_login_after = '';
 		parent::__construct($config);
 	}
+
+	public function save($app) {
+		$db = JFactory::getDBO();
+		$input = $app->input;
+		$task = $input->get('task', '');
+		$postData = $_POST;
+		unset($postData['option']);
+		unset($postData['view']);
+		unset($postData['task']);
+
+		$db->setQuery( "SELECT COUNT(*) FROM #__ninox_config WHERE `name`='config'" );
+		$count = (int)$db->loadResult();
+		if (!$count) {
+			$db->setQuery( "INSERT INTO #__ninox_config (`name`) VALUES ('config')" );
+			$db->query();
+		}
+		$config = $this->getTable('Config', 'NinoxTable');
+		$config->load('config');
+		$params = new JRegistry;
+		$params->loadString($config->params);
+		
+
+		foreach ($postData as $key=>$value) {
+			if ($key != 'task' && $key != 'option' && $key != 'view') {
+				$params->set($key, $value);
+			}
+		}
+		$result = $params->toString();
+		$config->params	= $result;
+		$db->setQuery( "UPDATE #__ninox_config SET `params`='{$config->params}' WHERE `name`='config'" );
+		$db->query();
+		
+		$app->enqueueMessage('Configuration Saved.');
+		$app->redirect('index.php?option=com_ninox');
+	}
 }
 ?>
