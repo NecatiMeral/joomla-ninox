@@ -13,7 +13,7 @@ jimport('joomla.application.component.controller');
  
 class NinoxController extends JControllerLegacy {
 	
-	protected $default_view = 'ninox';
+	protected $default_view = 'configuration';
 
 	public function __construct() {
 		parent::__construct();
