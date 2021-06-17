@@ -1,0 +1,10 @@
+/*
+ * @license MIT License (https://github.com/NecatiMeral/joomla-ninox/blob/main/LICENSE)
+ * @author  Necati Meral (necati_meral@yahoo.de)
+ * @url     https://github.com/NecatiMeral/joomla-ninox
+ */
+
+.fa-spin {filter:blur(0);}
+
+#export {margin:20px 0;}
+#export .btn-export {margin:0 0 18px;}

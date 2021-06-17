@@ -1,0 +1,16 @@
+{
+    "psi-header.variables": [
+        ["projectCreationYear", "2017"],
+        ["repositoryUrl", "https://github.com/NecatiMeral/joomla-ninox"]
+    ],
+    "psi-header.templates": [
+        {
+            "language": "*",
+            "template": [
+                "@license MIT License (<<repositoryUrl>>/blob/main/LICENSE)",
+                "@author  <<author>> (<<authoremail>>)",
+                "@url     <<repositoryUrl>>"
+            ]
+        }
+    ]
+}

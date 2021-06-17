@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.2" method="upgrade" type="package">
+	<name>Ninox Auto-Sync</name>
+	<packagename>ninox</packagename>
+	<author>Necati Meral</author>
+	<authorEmail>necati_meral@yahoo.de</authorEmail>
+	<creationDate>June 2021</creationDate>
+	<copyright>Copyright (C) 2021 Necati Meral</copyright>
+	<license>MIT License</license>
+	<authorUrl>https://github.com/NecatiMeral/joomla-ninox</authorUrl>
+	<version>1.0</version>
+	<description>Ninox Auto-Sync lets you synchronize new users and import existing users to your Ninox account.</description>
+	<update></update>
+	<files folder="packages">
+		<file type="component" id="com_ninox">com_ninox.zip</file>
+		<file type="plugin" id="ninox_user" group="user">ninox_user.zip</file>
+	</files>
+</extension>
