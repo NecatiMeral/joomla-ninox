@@ -40,7 +40,4 @@
 			<language tag="en-GB">language/en-GB/en-GB.com_ninox.sys.ini</language>
 		</languages>
 	</administration>
-    <updateservers>
-		<server type="extension" priority="1" name="Ninox Auto-Sync Updates">https://raw.githubusercontent.com/NecatiMeral/joomla-ninox/main/updates.xml</server>
-	</updateservers>
 </extension>
