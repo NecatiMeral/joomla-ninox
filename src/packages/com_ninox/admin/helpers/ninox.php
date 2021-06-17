@@ -31,5 +31,89 @@ class NinoxHelper {
 		}
 		return self::$_params;
 	}
+
+	static function getTeams() {
+		$config = self::getParams();
+		if (!$config->get('apikey')) {
+			return;
+		}
+
+		$ch = curl_init("https://api.ninoxdb.de/v1/teams");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			'Content-Type: application/json', 
+			'Accept: application/json',
+			'Authorization: Bearer '.$config->get('apikey'))
+		);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		$response = curl_exec($ch);
+		if(curl_error($ch)){
+			curl_close($ch);
+			return null;
+		}
+		$list = json_decode($response, true);
+
+		curl_close($ch);
+		return $list;
+	}
+
+	static function getDatabases() {
+		$config = self::getParams();
+		$teamId = $config->get('team_id');
+		if (!$config->get('apikey')) {
+			return;
+		}
+		if (!$teamId) {
+			return;
+		}
+
+		$ch = curl_init("https://api.ninoxdb.de/v1/teams/$teamId/databases");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			'Content-Type: application/json', 
+			'Accept: application/json',
+			'Authorization: Bearer '.$config->get('apikey'))
+		);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		$response = curl_exec($ch);
+		if(curl_error($ch)){
+			curl_close($ch);
+			return null;
+		}
+		$list = json_decode($response, true);
+
+		curl_close($ch);
+		return $list;
+	}
+
+	static function getTables() {
+		$config = self::getParams();
+		$teamId = $config->get('team_id');
+		$databaseId = $config->get('database_id');
+		if (!$config->get('apikey')) {
+			return;
+		}
+		if (!$teamId || !$databaseId) {
+			return;
+		}
+
+		$ch = curl_init("https://api.ninoxdb.de/v1/teams/$teamId/databases/$databaseId/tables");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			'Content-Type: application/json', 
+			'Accept: application/json',
+			'Authorization: Bearer '.$config->get('apikey'))
+		);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		$response = curl_exec($ch);
+		if(curl_error($ch)){
+			curl_close($ch);
+			return null;
+		}
+		$list = json_decode($response, true);
+
+		curl_close($ch);
+		return $list;
+	}
 }
 ?>

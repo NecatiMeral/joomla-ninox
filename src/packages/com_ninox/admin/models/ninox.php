@@ -47,7 +47,6 @@ class NinoxModelNinox extends JModelLegacy {
 		$params = new JRegistry;
 		$params->loadString($config->params);
 		
-
 		foreach ($postData as $key=>$value) {
 			if ($key != 'task' && $key != 'option' && $key != 'view') {
 				$params->set($key, $value);

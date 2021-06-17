@@ -31,8 +31,14 @@ class NinoxViewConfiguration extends JViewLegacy {
 	
 	function defaultView($tpl, $model) {
 		$config	= NinoxHelper::getParams();
+		$teams = NinoxHelper::getTeams();
+		$databases = NinoxHelper::getDatabases();
+		$tables = NinoxHelper::getTables();
 
 		$this->assign( 'config' , $config );
+		$this->assign( 'teams' , $teams );
+		$this->assign( 'databases' , $databases );
+		$this->assign( 'tables' , $tables );
 		parent::display($tpl);
 		$this->addToolBar();
 	}
