@@ -64,6 +64,15 @@ $document->addScriptDeclaration($js);
 				<?php echo $this->lists['table_id']; ?>
 			</div>
 		</div>
+	
+		<div class="control-group">
+			<label class="hasTooltip control-label" for="auto_sync" title="<?php echo JText::_('COM_NINOX_AUTO_SYNC_TOOLTIP'); ?>">
+				<?php echo JText::_('COM_NINOX_AUTO_SYNC'); ?>
+			</label>
+			<div class="controls">
+				<?php echo NinoxHtmlHelper::getBooleanInput('auto_sync', $this->config['auto_sync']); ?>
+			</div>
+		</div>
 
 		<input type="hidden" name="option" value="com_ninox" />
 		<input type="hidden" name="view" value="ninox" />
