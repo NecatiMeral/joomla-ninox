@@ -18,8 +18,25 @@ class plgUserNinox_user extends JPlugin {
 	}
 		
 	public function onUserAfterSave($user, $isnew, $success, $msg) {
-		// TODO: Implement ninox sync
-		// re-use existing logic in main component
+		if($isnew){
+			require_once(JPATH_SITE.'/administrator/components/com_ninox/helpers/ninox.php');
+			$config = NinoxHelper::getParams();
+			if ($config->get('auto_sync') && $config->get('apikey')) 
+			{
+				$contacts = array();
+				$parts = explode(" ", $user['name']);
+				$last_name = array_pop($parts);
+				$first_name = implode(" ", $parts);
+				$contacts[] = array(
+					'id' => $user['id'], 
+					'first_name' => $first_name, 
+					'last_name' => $last_name, 
+					'email' => $user['email']
+				);
+
+				NinoxHelper::addContacts($contacts);
+			}
+		}
 	}
 	
 }
