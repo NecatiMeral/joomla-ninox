@@ -8,6 +8,7 @@
  // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
 require_once(JPATH_COMPONENT.'/helpers/ninox.php');
+require_once(JPATH_COMPONENT.'/helpers/html.php');
 require_once(JPATH_COMPONENT.'/controller.php');
 
 // NinoxHelper::loadScripts();

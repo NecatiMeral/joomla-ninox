@@ -31,16 +31,45 @@ class NinoxViewConfiguration extends JViewLegacy {
 	
 	function defaultView($tpl, $model) {
 		$config	= NinoxHelper::getParams();
-		$teams = NinoxHelper::getTeams();
-		$databases = NinoxHelper::getDatabases();
-		$tables = NinoxHelper::getTables();
 
-		$this->assign( 'config' , $config );
-		$this->assign( 'teams' , $teams );
-		$this->assign( 'databases' , $databases );
-		$this->assign( 'tables' , $tables );
-		parent::display($tpl);
+		// Teams
+		$teams = NinoxHelper::getTeams();
+		$options = array();
+		$options[] = JHtml::_('select.option', '', JText::_('COM_NINOX_SELECT_TEAM'));
+		foreach($teams as $team) {
+			$options[] = JHtml::_('select.option', $team['id'], $team['name']);
+		}
+
+		$lists['team_id'] = JHtml::_('select.genericlist', $options, 'team_id', ' class="inputbox" ', 'value', 'text',
+			$config['team_id']);
+		
+		// Databases
+		$databases = NinoxHelper::getDatabases();
+		$options = array();
+		$options[] = JHtml::_('select.option', '', JText::_('COM_NINOX_SELECT_DATABASE'));
+		foreach($databases as $database) {
+			$options[] = JHtml::_('select.option', $database['id'], $database['name']);
+		}
+
+		$lists['database_id'] = JHtml::_('select.genericlist', $options, 'database_id', ' class="inputbox" ', 'value', 'text',
+			$config['database_id']);
+		
+		// Tables
+		$tables = NinoxHelper::getTables();
+		$options = array();
+		$options[] = JHtml::_('select.option', '', JText::_('COM_NINOX_SELECT_TABLE'));
+		foreach($tables as $table) {
+			$options[] = JHtml::_('select.option', $table['id'], $table['name']);
+		}
+
+		$lists['table_id'] = JHtml::_('select.genericlist', $options, 'table_id', ' class="inputbox" ', 'value', 'text',
+			$config['table_id']);
+
+		$this->config = $config;
+		$this->lists = $lists;
 		$this->addToolBar();
+
+		parent::display($tpl);
 	}
 
 	/**

@@ -18,7 +18,7 @@ defined('_JEXEC') or die('Restricted access');
 				<?php echo JText::_('COM_NINOX_API_KEY'); ?>
 			</label>
 			<div class="controls">
-				<input type="text" id="apikey" name="apikey" value="<?php echo $this->config->get('apikey');?>" class="input-xxlarge" />
+				<input type="text" id="apikey" name="apikey" value="<?php echo $this->config->get('apikey');?>" class="input-xlarge" size="36" />
 				<small class="help-block"><?php echo JText::_('COM_NINOX_API_KEY_HINT1'); ?></small>
 				<small class="help-block"><?php echo JText::_('COM_NINOX_API_KEY_HINT2'); ?></small>
 			</div>
@@ -29,30 +29,7 @@ defined('_JEXEC') or die('Restricted access');
 				<?php echo JText::_('COM_NINOX_API_TEAM'); ?>
 			</label>
 			<div class="controls">
-				<?php
-
-				$disabled = ($this->teams) ? '' : 'disabled="disabled"';
-				echo '<select id="team_id" name="team_id" class="input-xxlarge" ' . $disabled . '>';
-				
-				if($this->teams) {
-					
-					echo '<option value=""></option>';
-					foreach ($this->teams as $team) {
-						$selected = $this->config->get('team_id') == $team['id'] ? ' selected' : '';
-						echo '<option value="' . $team['id'] . '"' . $selected . '>' . $team['name'] . '</option>';
-					}
-
-				}
-				else {
-					echo '<option value="" selected></option>';
-				}
-				echo '</select>';
-				
-				if(!$this->teams) {
-					echo '<small class="help-block">Please enter a valid API Key first.</small>';
-				}
-
-				?>
+				<?php echo $this->lists['team_id']; ?>
 			</div>
 		</div>
 
@@ -61,30 +38,7 @@ defined('_JEXEC') or die('Restricted access');
 				<?php echo JText::_('COM_NINOX_API_DATABASE'); ?>
 			</label>
 			<div class="controls">
-				<?php
-
-				$disabled = ($this->databases) ? '' : 'disabled="disabled"';
-				echo '<select id="database_id" name="database_id" class="input-xxlarge" ' . $disabled . '>';
-				
-				if($this->databases) {
-					
-					echo '<option value=""></option>';
-					foreach ($this->databases as $database) {
-						$selected = $this->config->get('database_id') == $database['id'] ? ' selected' : '';
-						echo '<option value="' . $database['id'] . '"' . $selected . '>' . $database['name'] . '</option>';
-					}
-
-				}
-				else {
-					echo '<option value="" selected></option>';
-				}
-				echo '</select>';
-				
-				if(!$this->databases) {
-					echo '<small class="help-block">Please enter a valid API Key first and select a team.</small>';
-				}
-
-				?>
+				<?php echo $this->lists['database_id']; ?>
 			</div>
 		</div>
 
@@ -93,30 +47,7 @@ defined('_JEXEC') or die('Restricted access');
 				<?php echo JText::_('COM_NINOX_API_TABLE'); ?>
 			</label>
 			<div class="controls">
-				<?php
-
-				$disabled = ($this->tables) ? '' : 'disabled="disabled"';
-				echo '<select id="table_id" name="table_id" class="input-xxlarge" ' . $disabled . '>';
-
-				if($this->tables) {
-
-					echo '<option value=""></option>';
-					foreach ($this->tables as $table) {
-						$selected = $this->config->get('table_id') == $table['id'] ? ' selected' : '';
-						echo '<option value="' . $table['id'] . '"' . $selected . '>' . $table['name'] . '</option>';
-					}
-
-				}
-				else {
-					echo '<option value="" selected></option>';
-				}
-				echo '</select>';
-				
-				if(!$this->tables) {
-					echo '<small class="help-block">Please enter a valid API Key first and select a team.</small>';
-				}
-
-				?>
+				<?php echo $this->lists['table_id']; ?>
 			</div>
 		</div>
 
@@ -129,4 +60,60 @@ defined('_JEXEC') or die('Restricted access');
 
 <fieldset id="export" class="form-horizontal">
 	<legend><?php echo JText::_('COM_NINOX_EXPORT_EXISTING'); ?></legend>
+	<?php
+	if (!$this->config->get('apikey'))
+	{
+		echo '<div class="muted">' . JText::_('COM_NINOX_API_KEY_FIRST') . '</div>';
+	}
+	else {
+	?>
+	<div class="row-fluid">
+		<div class="span6">
+			<div class="control-group">
+				<label class="hasTooltip control-label" for="include_blocked" title="<?php echo JText::_('COM_NINOX_INCLUDE_BLOCKED_USERS_TOOLTIP'); ?>">
+					<?php echo JText::_('COM_NINOX_INCLUDE_BLOCKED_USERS'); ?>
+				</label>
+				<div class="controls">
+					<?php echo NinoxHtmlHelper::getBooleanInput('include_blocked', '0'); ?>
+				</div>
+			</div>
+	
+			<div class="control-group">
+				<label class="hasTooltip control-label" for="include_unconfirmed" title="<?php echo JText::_('COM_NINOX_INCLUDE_UNCONFIRMED_USERS_TOOLTIP'); ?>">
+					<?php echo JText::_('COM_NINOX_INCLUDE_UNCONFIRMED_USERS'); ?>
+				</label>
+				<div class="controls">
+					<?php echo NinoxHtmlHelper::getBooleanInput('include_unconfirmed', '0'); ?>
+				</div>
+			</div>
+	
+			<div class="control-group">
+				<label class="hasTooltip control-label" for="registered-after" title="<?php echo JText::_('COM_NINOX_REGISTERED_DATE_FILTER_TOOLTIP'); ?>">
+					<?php echo JText::_('COM_NINOX_REGISTERED_DATE'); ?>
+				</label>
+				<div class="controls">
+					<?php echo JHtml::calendar('', 'registered-after', 'registered-after', '%Y-%m-%d', 'class="input-medium"');?>
+					<small class="help-block"><?php echo JText::_('COM_NINOX_REGISTERED_DATE_FILTER_BLANK'); ?></small>
+				</div>
+			</div>
+	
+			<div class="control-group">
+				<label class="hasTooltip control-label" for="last-login-after" title="<?php echo JText::_('COM_NINOX_LAST_LOGIN_DATE_FILTER_TOOLTIP'); ?>">
+					<?php echo JText::_('COM_NINOX_LAST_LOGIN_DATE'); ?>
+				</label>
+				<div class="controls">
+					<?php echo JHtml::calendar('', 'last-login-after', 'last-login-after', '%Y-%m-%d', 'class="input-medium"');?>
+					<small class="help-block"><?php echo JText::_('COM_NINOX_LAST_LOGIN_DATE_FILTER_BLANK'); ?></small>
+				</div>
+			</div>
+		</div>
+		<div class="span6">
+			<div class="progress">
+				<div class="bar" style="width:0%;"></div>
+			</div>
+			<a class="btn btn-large btn-primary btn-export" onclick="beginExport(this)"><?php echo JText::_('COM_NINOX_BEGIN_EXPORT'); ?></a>
+			<div class="alert hidden"></div>
+		</div>
+	</div>
+	<?php } ?>
 </fieldset>
