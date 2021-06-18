@@ -69,67 +69,64 @@ class NinoxModelNinox extends JModelLegacy {
 		$last_login_after = $input->get('last_login_after', '', 'STR');
 		$this->registered_after = ($registered_after) ? JFactory::getDate($registered_after)->toSQL() : '0000-00-00 00:00:00';
 		$this->last_login_after = ($last_login_after) ? JFactory::getDate($last_login_after)->toSQL() : '0000-00-00 00:00:00';
-		
-		//init users table
-		$db->setQuery( "SHOW COLUMNS FROM `{$this->users_table}` LIKE 'ninox'" );
-		$result = $db->loadObjectList();
-		if (!count($result)) {
-			$db->setQuery( "ALTER TABLE `{$this->users_table}` ADD COLUMN `ninox` tinyint(1) NOT NULL default '0'" );
-			$db->query();
-		}
-		$return = array('total'=>0, 'exported'=>0, 'exported_percent'=>0, 'exported_total'=>0, 'error'=>'', 'completed'=>0);
 
-		$query = $db->getQuery(true);
-		$query
+		$return = array(
+			'total' => 0, 
+			'exported' => 0, 
+			'exported_percent' => 0, 
+			'exported_total' => 0, 
+			'error' => '', 
+			'completed' => 0
+		);
+
+		$query = $db
+			->getQuery(true)
 			->select("COUNT(*)")
-			->from($db->quoteName($this->users_table));
-		$query = $this->filterExportQuery($query);
+			->from($db->quoteName($this->users_table, 'a'));
+		$query = $this->filterExportQuery($db, $query);
 		$db->setQuery($query);
 		$total = (int)$db->loadResult();
 		$return['total'] = $total;
 		
-		$query = $db->getQuery(true);
-		$query
-			->select($db->quoteName(array('id', 'name', 'email')))
-			->from($db->quoteName($this->users_table))
-			->where("ninox = '0'")
-			->order("id ASC")
+		$query = $db
+			->getQuery(true)
+			->select(array('a.id', 'a.name', 'a.email'))
+			->from($db->quoteName($this->users_table, 'a'))
+			->join('LEFT', $db->quoteName('#__ninox_user_map', 'b') . ' ON ' . $db->quoteName('a.id') . ' = ' . $db->quoteName('b.id'))
+			->where($db->quoteName('b.id') . ' IS NULL')
+			->order($db->quoteName('a.id') . ' ASC')
 			->setLimit("500");
-		$query = $this->filterExportQuery($query);
+		$query = $this->filterExportQuery($db, $query);
 		$db->setQuery($query);
 		$users = $db->loadObjectList();
 		
-		$contacts = array();
-		$_IDs = array();
+		$userDtos = array();
 		foreach ($users as $user) {
 			$parts = explode(" ", $user->name);
 			$last_name = array_pop($parts);
 			$first_name = implode(" ", $parts);
-			$contacts[] = array('id' => $user->id, 'first_name' => $first_name, 'last_name' => $last_name, 'email' => $user->email);
-			$_IDs[] = "`id`={$user->id}";
+			$userDtos[] = array('id' => $user->id, 'first_name' => $first_name, 'last_name' => $last_name, 'email' => $user->email);
 		}
 
-		$return['exported'] = count($_IDs);
-		if(count($_IDs) > 0)
+		$return['exported'] = count($userDtos);
+		if(count($userDtos) > 0)
 		{
-			$response = NinoxHelper::addContacts($contacts);
+			$response = NinoxHelper::addContacts($userDtos);
 			if ($response['code'] >= 200 && $response['code'] < 300) {
-				$_OR = implode(' OR ', $_IDs);
-				$db->setQuery( "UPDATE {$this->users_table} SET `ninox`=1 WHERE ({$_OR})" );
-				$db->query();
 			}
 			else {
 				$return['code'] = $response['code'];
 				$return['error'] = JText::_('COM_NINOX_EXPORT_FAILED');
 			}
 		}
-
-		$query = $db->getQuery(true);
-		$query
-			->select("COUNT(*)")
-			->from($db->quoteName($this->users_table))
-			->where("ninox = '1'");
-		$query = $this->filterExportQuery($query);
+		
+		$query = $db
+			->getQuery(true)
+			->select('COUNT(*)')
+			->from($db->quoteName($this->users_table, 'a'))
+			->join('LEFT', $db->quoteName('#__ninox_user_map', 'b') . ' ON ' . $db->quoteName('a.id') . ' = ' . $db->quoteName('b.id'))
+			->where($db->quoteName('b.id') . ' IS NOT NULL');
+		$query = $this->filterExportQuery($db, $query);
 		$db->setQuery($query);
 		$exported_total = (int)$db->loadResult();
 		$return['exported_total'] = $exported_total;
@@ -141,15 +138,23 @@ class NinoxModelNinox extends JModelLegacy {
 		echo json_encode($return);
 	}
 	
-	private function filterExportQuery($query) {
+	private function filterExportQuery($db, $query) {
 		if (!$this->include_blocked)
-			$query->where("block = '0'");
+		{
+			$query->where($db->quoteName('a.block') . ' = 0');
+		}
 		if (!$this->include_unconfirmed)
-			$query->where("activation = ''");
+		{
+			$query->where($db->quoteName('a.activation') . " = ''");
+		}
 		if ($this->registered_after)
-			$query->where("registerDate >= '{$this->registered_after}'");
+		{
+			$query->where($db->quoteName('a.registerDate') . '>= ' . $db->quote($this->registered_after));
+		}
 		if ($this->last_login_after)
-			$query->where("lastvisitDate >= '{$this->last_login_after}'");
+		{
+			$query->where($db->quoteName('a.lastvisitDate') . ' >= ' . $db->quote($this->last_login_after));
+		}
 		return $query;
 	}
 }

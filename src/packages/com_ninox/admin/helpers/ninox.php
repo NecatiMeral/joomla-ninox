@@ -149,6 +149,43 @@ class NinoxHelper {
 		$result = json_decode(curl_exec($ch), true);
 		$result['code'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		curl_close($ch);
+
+		if($result['code'] >= 200 && $result['code'] < 300)
+		{
+			$db = JFactory::getDBO();
+			for ($i = 0; $i < count($users); ++$i) {
+				$user = $users[$i];
+				$contact = $result[$i];
+				
+				// TODO: Fix select N+1 issue
+				$query = $db
+					->getQuery(true)
+					->select($db->quoteName('id'))
+					->from($db->quoteName('#__ninox_user_map'))
+					->where($db->quoteName('id') . ' = ' . $user['id']);
+
+				$db->setQuery($query);
+				$mapItem = $db->loadObject();
+			
+				// Add user-id to ninox key to map-table
+				if(!$mapItem)
+				{
+					$values = array(
+						$user['id'],
+						$contact['id']
+					);
+
+					$query = $db
+						->getQuery(true)
+						->insert($db->quoteName('#__ninox_user_map'))
+						->columns($db->quoteName(array('id', 'ninoxId')))
+						->values(implode(',', $values));
+						
+					$db->setQuery($query);
+					$db->execute();
+				}
+			}
+		}
 		
 		return $result;
 	}
