@@ -189,6 +189,57 @@ class NinoxHelper {
 		
 		return $result;
 	}
+
+	static function deleteContacts($arrayOfUserIds) {
+		$config = self::getParams();
+		$teamId = $config->get('team_id');
+		$databaseId = $config->get('database_id');
+		$tableId = $config->get('table_id');
+		if (!$config->get('apikey')
+			|| !$teamId || !$databaseId || !$tableId) 
+		{
+			return;
+		}
+		
+		$db = JFactory::getDBO();
+		$query = $db
+			->getQuery(true)
+			->select($db->quoteName('ninoxId'))
+			->from($db->quoteName('#__ninox_user_map'))
+			->where($db->quoteName('id') . ' IN ( ' . implode(', ', $arrayOfUserIds) . ')');
+
+		$db->setQuery($query);
+		$ninoxIds = $db->loadColumn();
+		$return = array();
+		
+		foreach ($ninoxIds as $ninoxId) 
+		{
+			$ch = curl_init("https://api.ninoxdb.de/v1/teams/$teamId/databases/$databaseId/tables/$tableId/records/$ninoxId");
+
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $config->get('apikey')));
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+			curl_exec($ch);
+
+			$return['code'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			curl_close($ch);
+			if($return['code'] != 200)
+			{
+				return $return;
+			}
+		}
+
+		$query = $db
+			->getQuery(true)
+			->delete($db->quoteName('#__ninox_user_map'))
+			->where($db->quoteName('id') . ' IN ( ' . implode(', ', $arrayOfUserIds) . ')');
+		$db->setQuery($query);
+		$db->execute();
+
+		return $return;
+	}
 	
 	static function loadScripts() {
 		$app = JFactory::getApplication();

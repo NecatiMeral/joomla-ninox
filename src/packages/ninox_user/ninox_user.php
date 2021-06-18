@@ -18,7 +18,8 @@ class plgUserNinox_user extends JPlugin {
 	}
 		
 	public function onUserAfterSave($user, $isnew, $success, $msg) {
-		if($isnew){
+		if($isnew && $success)
+		{
 			require_once(JPATH_SITE.'/administrator/components/com_ninox/helpers/ninox.php');
 			$config = NinoxHelper::getParams();
 			if ($config->get('auto_sync') && $config->get('apikey')) 
@@ -35,6 +36,30 @@ class plgUserNinox_user extends JPlugin {
 				);
 
 				NinoxHelper::addContacts($contacts);
+			}
+		}
+	}
+
+	public function onUserAfterDelete($user, $success, $msg)
+	{
+		if($success)
+		{
+			require_once(JPATH_SITE.'/administrator/components/com_ninox/helpers/ninox.php');
+			$config = NinoxHelper::getParams();
+			if ($config->get('auto_sync') && $config->get('apikey')) 
+			{	
+				$result = NinoxHelper::deleteContacts(array($user['id']));
+				
+				// TODO: Inform user about success or failure
+				// $app = JFactory::getApplication();
+				// if($result['code'] == 200)
+				// {		
+				// 	$app->enqueueMessage('OK: ' . $result['code']);
+				// }
+				// else
+				// {
+				// 	$app->enqueueMessage('NOT OK: ' . $result['code']);
+				// }
 			}
 		}
 	}
