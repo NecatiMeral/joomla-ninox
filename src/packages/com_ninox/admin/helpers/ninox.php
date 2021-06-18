@@ -115,5 +115,62 @@ class NinoxHelper {
 		curl_close($ch);
 		return $list;
 	}
+	
+	static function addContacts($users) {
+		$config = self::getParams();
+		$teamId = $config->get('team_id');
+		$databaseId = $config->get('database_id');
+		$tableId = $config->get('table_id');
+		if (!$config->get('apikey')) {
+			return;
+		}
+		if (!$teamId || !$databaseId || !$tableId) {
+			return;
+		}
+
+		$contacts = array_map(function($user) {
+			$contact = new stdClass();
+			$contact->fields = [
+				"Vorname" => $user['first_name'],
+				"Nachname" => $user['last_name'],
+				"E-Mail" => $user['email'],
+				"Website-ID" => $user['id']
+			];
+			return $contact;
+		}, $users);
+		
+		$ch = curl_init("https://api.ninoxdb.de/v1/teams/$teamId/databases/$databaseId/tables/$tableId/records");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Authorization: Bearer ' . $config->get('apikey')));
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($contacts));
+		// change this when we know we can use our bundled CA bundle!
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		$result = json_decode(curl_exec($ch), true);
+		$result['code'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		curl_close($ch);
+		
+		return $result;
+	}
+	
+	static function loadScripts() {
+		$app = JFactory::getApplication();
+		$document = JFactory::getDocument();
+		JHtml::_('jquery.framework');
+		JHtml::_('bootstrap.framework');
+		JHtml::_('bootstrap.tooltip');
+		
+		if ($app->isAdmin()) {
+			$document->addScript(JURI::base(true).'/components/com_ninox/assets/javascript/ninox.js');
+			$document->addStyleSheet(JURI::base(true).'/components/com_ninox/assets/css/ninox.css');
+		}
+
+		$js = "
+		var ninox = {
+			livesite: '" . JURI::root() . "',
+			succeedTemplate: '" . JText::_('COM_NINOX_EXPORT_SUCCEED') . "'
+		};";
+		$document->addScriptDeclaration($js);
+	}
 }
 ?>

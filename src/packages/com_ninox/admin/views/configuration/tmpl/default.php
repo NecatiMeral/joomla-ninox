@@ -7,6 +7,20 @@
 
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
+$document = JFactory::getDocument();
+$js = "
+Joomla.submitbutton = function(task) {
+	var $ = jQuery, error = false;
+	if (task == 'apply') {
+		if ($.trim($('#apikey').val()) == '') {
+			$('#apikey').focus().attr('placeholder', 'API Key is required').closest('.control-group').addClass('error');
+		}
+		else
+			Joomla.submitform(task, document.getElementById('adminForm'));
+	}
+}
+";
+$document->addScriptDeclaration($js);
 ?>
 
 <fieldset class="form-horizontal">
@@ -88,21 +102,21 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 	
 			<div class="control-group">
-				<label class="hasTooltip control-label" for="registered-after" title="<?php echo JText::_('COM_NINOX_REGISTERED_DATE_FILTER_TOOLTIP'); ?>">
+				<label class="hasTooltip control-label" for="registered_after" title="<?php echo JText::_('COM_NINOX_REGISTERED_DATE_FILTER_TOOLTIP'); ?>">
 					<?php echo JText::_('COM_NINOX_REGISTERED_DATE'); ?>
 				</label>
 				<div class="controls">
-					<?php echo JHtml::calendar('', 'registered-after', 'registered-after', '%Y-%m-%d', 'class="input-medium"');?>
+					<?php echo JHtml::calendar('', 'registered_after', 'registered_after', '%Y-%m-%d', 'class="input-medium"');?>
 					<small class="help-block"><?php echo JText::_('COM_NINOX_REGISTERED_DATE_FILTER_BLANK'); ?></small>
 				</div>
 			</div>
 	
 			<div class="control-group">
-				<label class="hasTooltip control-label" for="last-login-after" title="<?php echo JText::_('COM_NINOX_LAST_LOGIN_DATE_FILTER_TOOLTIP'); ?>">
+				<label class="hasTooltip control-label" for="last_login_after" title="<?php echo JText::_('COM_NINOX_LAST_LOGIN_DATE_FILTER_TOOLTIP'); ?>">
 					<?php echo JText::_('COM_NINOX_LAST_LOGIN_DATE'); ?>
 				</label>
 				<div class="controls">
-					<?php echo JHtml::calendar('', 'last-login-after', 'last-login-after', '%Y-%m-%d', 'class="input-medium"');?>
+					<?php echo JHtml::calendar('', 'last_login_after', 'last_login_after', '%Y-%m-%d', 'class="input-medium"');?>
 					<small class="help-block"><?php echo JText::_('COM_NINOX_LAST_LOGIN_DATE_FILTER_BLANK'); ?></small>
 				</div>
 			</div>

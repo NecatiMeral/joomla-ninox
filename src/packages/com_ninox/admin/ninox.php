@@ -11,7 +11,7 @@ require_once(JPATH_COMPONENT.'/helpers/ninox.php');
 require_once(JPATH_COMPONENT.'/helpers/html.php');
 require_once(JPATH_COMPONENT.'/controller.php');
 
-// NinoxHelper::loadScripts();
+NinoxHelper::loadScripts();
 // import joomla controller library
 jimport('joomla.application.component.controller');
  

@@ -27,7 +27,7 @@ class NinoxController extends JControllerLegacy {
 		$viewType = $document->getType();
 		
 		$view = $this->getView($viewName, $viewType);
-		$model = $this->getModel($viewName);
+		$model = $this->getModel('Ninox');
         if ($model)
 		{
 			$view->setModel($model, true);
