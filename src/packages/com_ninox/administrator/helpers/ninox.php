@@ -127,16 +127,7 @@ class NinoxHelper {
 			return;
 		}
 
-		$contacts = array_map(function($user) {
-			$contact = new stdClass();
-			$contact->fields = [
-				"Vorname" => $user['first_name'],
-				"Nachname" => $user['last_name'],
-				"E-Mail" => $user['email'],
-				"Website-ID" => $user['id']
-			];
-			return $contact;
-		}, $users);
+		$contacts = self::convertUsersToNinoxDto($users);
 		
 		$ch = curl_init("https://api.ninoxdb.de/v1/teams/$teamId/databases/$databaseId/tables/$tableId/records");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -331,6 +322,61 @@ class NinoxHelper {
 		}
 
 		return $result;
+	}
+
+	static function convertUsersToNinoxDto($users)
+	{
+		$mappings = self::getMappings();
+		$convertedUsers = array();
+
+		foreach ($users as $user) 
+		{
+			$fields = array();
+			foreach ($mappings as $map) 
+			{
+				$propName = self::removePrefix($map->joomla_prop, 'users.');
+				$ninoxPropName = $map->ninox_prop;
+
+				$fields[$ninoxPropName] = $user[$propName];
+			}
+			$contact = new stdClass();
+			$contact->fields = $fields;
+			$convertedUsers[] = $contact;
+		}
+		return $convertedUsers;
+	}
+	
+	static function removePrefix($text, $prefix) 
+	{
+		if(0 === strpos($text, $prefix))
+		{
+			$text = substr($text, strlen($prefix));
+		}
+		return $text;
+	}
+
+	static function getUsersToExport() 
+	{
+		$model = JModelLegacy::getInstance('Ninox', 'NinoxModel');
+		
+		$items = $model->getUsers(false);
+
+		return $items;
+	}
+
+	static function getMappings() 
+	{			
+		$modelPath = JPATH_ADMINISTRATOR.'/components/com_ninox/models/mappings.php';
+		
+		require_once($modelPath);
+		JLoader::register('mappings', $modelPath);
+
+		$model = JModelLegacy::getInstance('mappings', 'NinoxModel');
+		$model->setState('filter.state', 1);
+		
+		$items = $model->getItems();
+
+		return $items;
 	}
 }
 ?>
