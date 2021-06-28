@@ -128,6 +128,18 @@ class NinoxHelper {
 		}
 
 		$contacts = self::convertUsersToNinoxDto($users);
+
+		// Append known contact IDs from mapping table
+		$userIds = array_column($users, 'id');
+		$userMappings = self::getJoomlaUserToNinoxIdMap($userIds);
+		for ($i = 0; $i < count($users); $i++) 
+		{
+			$userId = $users[$i]['id'];
+			if(array_key_exists($userId, $userMappings))
+			{
+				$contacts[$i]->id = $userMappings[$userId]['ninoxId'];
+			}
+		}
 		
 		$ch = curl_init("https://api.ninoxdb.de/v1/teams/$teamId/databases/$databaseId/tables/$tableId/records");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -143,22 +155,14 @@ class NinoxHelper {
 		if($result['code'] >= 200 && $result['code'] < 300)
 		{
 			$db = JFactory::getDBO();
-			for ($i = 0; $i < count($users); ++$i) {
+			for ($i = 0; $i < count($users); ++$i)
+			{
 				$user = $users[$i];
 				$contact = $result[$i];
-				
-				// TODO: Fix select N+1 issue
-				$query = $db
-					->getQuery(true)
-					->select($db->quoteName('id'))
-					->from($db->quoteName('#__ninox_user_map'))
-					->where($db->quoteName('id') . ' = ' . $user['id']);
 
-				$db->setQuery($query);
-				$mapItem = $db->loadObject();
-			
+				// Use what's already loaded
 				// Add user-id to ninox key to map-table
-				if(!$mapItem)
+				if(!array_key_exists($userId, $userMappings))
 				{
 					$values = array(
 						$user['id'],
@@ -201,7 +205,10 @@ class NinoxHelper {
 		$db->setQuery($query);
 		$ninoxIds = $db->loadColumn();
 		$return = array();
+		$deletedNinoxIds = array();
 		
+		// We cannot delete multiple records with a since database call yet.
+		// Update this part once ninox has a endpoint for that.
 		foreach ($ninoxIds as $ninoxId) 
 		{
 			$ch = curl_init("https://api.ninoxdb.de/v1/teams/$teamId/databases/$databaseId/tables/$tableId/records/$ninoxId");
@@ -215,18 +222,26 @@ class NinoxHelper {
 
 			$return['code'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 			curl_close($ch);
-			if($return['code'] != 200)
+			
+			if($return['code'] == 200)
 			{
-				return $return;
+				$deletedNinoxIds[] = $ninoxId;
+			}
+			else
+			{
+				break;
 			}
 		}
 
-		$query = $db
-			->getQuery(true)
-			->delete($db->quoteName('#__ninox_user_map'))
-			->where($db->quoteName('id') . ' IN ( ' . implode(', ', $arrayOfUserIds) . ')');
-		$db->setQuery($query);
-		$db->execute();
+		if(count($deletedNinoxIds) > 0)
+		{
+			$query = $db
+				->getQuery(true)
+				->delete($db->quoteName('#__ninox_user_map'))
+				->where($db->quoteName('ninoxId') . ' IN ( ' . implode(', ', $deletedNinoxIds) . ')');
+			$db->setQuery($query);
+			$db->execute();
+		}
 
 		return $return;
 	}
@@ -250,6 +265,7 @@ class NinoxHelper {
 		};";
 		$document->addScriptDeclaration($js);
 	}
+
 	/**
 	 * Configure the Linkbar.
 	 *
@@ -377,6 +393,23 @@ class NinoxHelper {
 		$items = $model->getItems();
 
 		return $items;
+	}
+
+	static function getJoomlaUserToNinoxIdMap($userIds) 
+	{
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select(array(
+				$db->quoteName('id'),
+				$db->quoteName('ninoxId')
+			))
+			->from($db->quoteName('#__ninox_user_map'))
+			->where($db->quoteName('id') . ' IN ( ' . implode(', ', $userIds) . ')');
+
+		$db->setQuery($query);
+		return $db->loadAssocList('id');
 	}
 }
 ?>
