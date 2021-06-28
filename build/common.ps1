@@ -8,5 +8,6 @@ $releaseFolder = Join-Path $rootFolder "release"
 $packageManifestDir = "../src/"
 $packagePaths = @(
     "../src/packages/com_ninox",
-    "../src/packages/ninox_user"
+    "../src/packages/ninox_user",
+    "../src/packages/ninox_vmshopper"
 )
