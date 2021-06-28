@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.0" method="upgrade" type="plugin" group="user">
-	<name>User - Ninox Auto-Sync</name>
-	<packagename>ninox</packagename>
+	<name>User - Ninox User Auto-Sync</name>
 	<author>Necati Meral</author>
 	<authorEmail>necati_meral@yahoo.de</authorEmail>
 	<creationDate>June 2021</creationDate>
