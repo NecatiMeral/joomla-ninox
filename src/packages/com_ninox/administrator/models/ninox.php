@@ -60,42 +60,6 @@ class NinoxModelNinox extends JModelLegacy {
 		$app->enqueueMessage(JText::_('COM_NINOX_CONFIGURATION_SAVED'));
 		$app->redirect('index.php?option=com_ninox');
 	}
-
-	public function getUsers($onlyPending)
-	{
-		$db = $this->getDbo();
-		$query = $db
-			->getQuery(true)
-			->select(array('a.id', 'a.name', 'a.email'))
-			->from($db->quoteName($this->users_table, 'a'))
-			->order($db->quoteName('a.id') . ' ASC')
-			->setLimit("500");
-
-		if($onlyPending)
-		{
-			$query->join('LEFT', $db->quoteName('#__ninox_user_map', 'b') . ' ON ' . $db->quoteName('a.id') . ' = ' . $db->quoteName('b.id'))
-				->where($db->quoteName('b.id') . ' IS NULL');
-		}
-		$query = $this->filterExportQuery($db, $query);
-		$db->setQuery($query);
-		$users = $db->loadObjectList();
-		
-		$userDtos = array();
-		foreach ($users as $user) 
-		{
-			$parts = explode(" ", $user->name);
-			$last_name = array_pop($parts);
-			$first_name = implode(" ", $parts);
-
-			$userDtos[] = array(
-				'id' => $user->id, 
-				'first_name' => $first_name, 
-				'last_name' => $last_name, 
-				'email' => $user->email
-			);
-		}
-		return $userDtos;
-	}
 		
 	public function export($input) {
 		$db = $this->getDbo();
@@ -124,7 +88,7 @@ class NinoxModelNinox extends JModelLegacy {
 		$total = (int)$db->loadResult();
 		$return['total'] = $total;
 		
-		$userDtos = self::getUsers(true);
+		$userDtos = $this->getUsers(true);
 
 		$return['exported'] = count($userDtos);
 		if(count($userDtos) > 0)
@@ -154,6 +118,45 @@ class NinoxModelNinox extends JModelLegacy {
 			$return['completed'] = 1;
 		}
 		echo json_encode($return);
+	}
+
+	public function getUsers($onlyPending)
+	{
+		$db = $this->getDbo();
+		$query = $db
+			->getQuery(true)
+			->select(array('a.id', 'a.name', 'a.email', 'a.registerDate', 'a.lastVisitDate'))
+			->from($db->quoteName($this->users_table, 'a'))
+			->order($db->quoteName('a.id') . ' ASC')
+			->setLimit("500");
+
+		if($onlyPending)
+		{
+			$query->join('LEFT', $db->quoteName('#__ninox_user_map', 'b') . ' ON ' . $db->quoteName('a.id') . ' = ' . $db->quoteName('b.id'))
+				->where($db->quoteName('b.id') . ' IS NULL');
+		}
+
+		$query = $this->filterExportQuery($db, $query);
+		$db->setQuery($query);
+		$users = $db->loadObjectList();
+		
+		$userDtos = array();
+		foreach ($users as $user) 
+		{
+			$parts = explode(" ", $user->name);
+			$last_name = array_pop($parts);
+			$first_name = implode(" ", $parts);
+
+			$userDtos[] = array(
+				'id' => $user->id, 
+				'first_name' => $first_name, 
+				'last_name' => $last_name, 
+				'email' => $user->email,
+				'registerDate' => $user->registerDate,
+				'lastVisitDate' => $user->lastVisitDate
+			);
+		}
+		return $userDtos;
 	}
 	
 	private function filterExportQuery($db, $query) {
