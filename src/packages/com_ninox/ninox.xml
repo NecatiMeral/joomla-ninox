@@ -16,6 +16,11 @@
 			<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
 		</sql>
 	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>
 	<update>
 		<schemas>
 			<schemapath type="mysql">sql/updates/mysql</schemapath>
@@ -24,22 +29,33 @@
 
 	<administration>
 		<menu view="configuration">COM_NINOX</menu>
-		<files folder="admin">
-			<filename>index.html</filename>
-			<filename>controller.php</filename>
-			<filename>ninox.php</filename>
-			<folder>assets</folder> 
-			<folder>helpers</folder> 
-			<folder>models</folder> 
+		<submenu>
+			<menu link="option=com_ninox&amp;view=configuration" view="configuration" alt="Ninox/Configuration">COM_NINOX_TITLE_CONFIGURATION</menu>
+			<menu link="option=com_ninox&amp;view=mappings" view="mappings" alt="Ninox/Mappings">COM_NINOX_TITLE_MAPPINGS</menu>
+		</submenu>
+		<files folder="administrator">
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+            <filename>controller.php</filename>
+            <filename>index.html</filename>
+            <filename>ninox.php</filename>
+			<folder>assets</folder>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>models</folder>
 			<folder>sql</folder>
 			<folder>tables</folder>
-			<folder>views</folder> 
+			<folder>views</folder>
 		</files>
-		<languages folder="admin">
-			<language tag="en-GB">language/en-GB/en-GB.com_ninox.ini</language>
-			<language tag="en-GB">language/en-GB/en-GB.com_ninox.sys.ini</language>
-			<language tag="de-DE">language/de-DE/de-DE.com_ninox.ini</language>
-			<language tag="de-DE">language/de-DE/de-DE.com_ninox.sys.ini</language>
+		<media destination="com_ninox" folder="media">
+			<folder>js</folder>
+			<folder>css</folder>
+		</media>
+		<languages folder="administrator/languages">
+			<language tag="en-GB">en-GB/en-GB.com_ninox.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_ninox.sys.ini</language>
+			<language tag="de-DE">de-DE/de-DE.com_ninox.ini</language>
+			<language tag="de-DE">de-DE/de-DE.com_ninox.sys.ini</language>
 		</languages>
 	</administration>
 </extension>
