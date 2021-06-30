@@ -21,4 +21,26 @@
         <maintainerurl>https://github.com/NecatiMeral/joomla-ninox</maintainerurl>
         <targetplatform name="joomla" version="[34].[0123456789]" />
     </update>
+    <update>
+        <name>Ninox Auto-Sync package</name>
+        <description></description>
+        <element>pkg_ninox</element>
+        <type>package</type>
+        <version>1.0.1</version>
+        <client>0</client>
+        <infourl title="Ninox Auto-Sync 1.0.1">https://github.com/NecatiMeral/joomla-ninox/releases/tag/1.0.1</infourl>
+        <downloads>
+            <downloadurl
+                type="full"
+                format="zip">
+                https://github.com/NecatiMeral/joomla-ninox/releases/download/1.0.1/pkg_ninox.zip
+            </downloadurl>
+        </downloads>
+        <tags>
+            <tag>stable</tag>
+        </tags>
+        <maintainer>Necati Meral</maintainer>
+        <maintainerurl>https://github.com/NecatiMeral/joomla-ninox</maintainerurl>
+        <targetplatform name="joomla" version="[34].[0123456789]" />
+    </update>
 </updates>

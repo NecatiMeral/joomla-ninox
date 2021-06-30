@@ -8,7 +8,7 @@
 	<copyright>Copyright (C) 2021 Necati Meral</copyright>
 	<license>MIT License</license>
 	<authorUrl>https://github.com/NecatiMeral/joomla-ninox</authorUrl>
-	<version>1.0</version>
+	<version>1.0.1</version>
 	<description>Ninox Auto-Sync lets you synchronize new users and import existing users to your Ninox account.</description>
 	<update></update>
 	<files folder="packages">
