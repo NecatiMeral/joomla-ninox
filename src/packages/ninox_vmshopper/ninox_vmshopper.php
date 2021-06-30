@@ -14,7 +14,7 @@ class plgVmShopperNinox_vmshopper extends JPlugin {
 		parent::__construct($subject, $config);
 	}
 
-	public function plgVmAfterUserStore($data) 
+	public function plgVmAfterUserStore2($data) 
 	{
 		require_once(JPATH_SITE.'/administrator/components/com_ninox/helpers/ninox.php');
 		
