@@ -8,6 +8,9 @@
 // No direct access
 defined('_JEXEC') or die('Restricted access');
 
+// import Joomla controller library
+jimport('joomla.application.component.controller');
+
 use \Joomla\CMS\Factory;
  
 /**
@@ -32,38 +35,23 @@ class NinoxController extends \Joomla\CMS\MVC\Controller\BaseController
 	 */
 	function display($cachable = false, $urlparams = false) {
 
-		// $input = JFactory::getApplication()->input;
-		// $viewName = $input->get('view', $this->default_view);
-        // $layoutName = $input->get('layout', 'default');
-		// $document = JFactory::getDocument();
-		// $viewType = $document->getType();
-		
-		// $view = $this->getView($viewName, $viewType);
-		// $model = $this->getModel('Ninox');
-        // if ($model)
-		// {
-		// 	$view->setModel($model, true);
-		// }
-        // $view->setLayout($layoutName);
-        // $view->display();
-
 		$app = Factory::getApplication();
-		$viewName = $app->input->getCmd('view', 'configuration');
+		$viewName = $app->input->getCmd('view', $this->default_view);
         $layoutName = $app->input->get('layout', 'default');
 		$app->input->set('view', $viewName);
 
 		$document = Factory::getDocument();
 		$viewType = $document->getType();
-		$view = $this->getView($viewName, $viewType);
 
+		$view = $this->getView($viewName, $viewType);
 		$model = $this->getModel('Ninox');
         if ($model)
 		{
 			$view->setModel($model, true);
 		}
-        $view->setLayout($layoutName);
 
-		parent::display($cachable, $urlparams);
+        $view->setLayout($layoutName);
+        parent::display($cachable, $urlparams);
 		
 		return $this;
 	}

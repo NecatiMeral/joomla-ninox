@@ -130,8 +130,7 @@ class NinoxModelNinox extends JModelLegacy {
 			->getQuery(true)
 			->select(array('a.id', 'a.name', 'a.email', 'a.registerDate', 'a.lastVisitDate'))
 			->from($db->quoteName($this->users_table, 'a'))
-			->order($db->quoteName('a.id') . ' ASC')
-			->setLimit("500");
+			->order($db->quoteName('a.id') . ' ASC');
 
 		if($onlyPending)
 		{

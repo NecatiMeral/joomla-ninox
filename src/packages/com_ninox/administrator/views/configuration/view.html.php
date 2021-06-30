@@ -35,6 +35,27 @@ class NinoxViewConfiguration extends \Joomla\CMS\MVC\View\HtmlView
 	 */
 	public function display($tpl = null)
 	{
+		$app = Factory::getApplication();
+		$input = $app->input;
+		$task = $input->get('task', '');
+		$model = $this->getModel();
+
+		if (!$task) {
+			$this->defaultView($tpl, $model);
+			return;
+		}
+
+		switch ($task) {
+			case 'apply':
+			case 'save':
+				$model->save($app);
+				break;
+		}
+    }
+
+	function defaultView($tpl, $model) {
+
+
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
 		{
@@ -85,7 +106,7 @@ class NinoxViewConfiguration extends \Joomla\CMS\MVC\View\HtmlView
 
 		$this->sidebar = JHtmlSidebar::render();
 		parent::display($tpl);
-    }
+	}
 
 	/**
 	 * Add the page title and toolbar.

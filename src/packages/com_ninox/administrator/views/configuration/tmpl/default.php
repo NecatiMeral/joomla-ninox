@@ -102,7 +102,7 @@ $document->addScriptDeclaration($js);
 			</div>
 
 			<input type="hidden" name="option" value="com_ninox" />
-			<input type="hidden" name="view" value="ninox" />
+			<input type="hidden" name="view" value="configuration" />
 			<input type="hidden" name="task" value="" />
 
 		</form>
