@@ -6,12 +6,12 @@
         <type>package</type>
         <version>1.0.0</version>
         <client>0</client>
-        <infourl title="Ninox Auto-Sync 1.0.0">https://github.com/NecatiMeral/joomla-ninox/releases/tag/1.0.0</infourl>
+        <infourl title="Ninox Auto-Sync 1.0.0">https://github.com/NecatiMeral/joomla-ninox/releases/tag/1.0%2C0</infourl>
         <downloads>
             <downloadurl
                 type="full"
                 format="zip">
-                https://github.com/NecatiMeral/joomla-ninox/archive/refs/tags/1.0.0.zip
+                https://github.com/NecatiMeral/joomla-ninox/releases/download/1.0.0/pkg_ninox.zip
             </downloadurl>
         </downloads>
         <tags>
