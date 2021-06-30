@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.0" method="upgrade" type="plugin" group="user">
-	<name>User - Ninox User Auto-Sync</name>
+<extension version="3.0" method="upgrade" type="plugin" group="vmshopper">
+	<name>VMShopper - Ninox VMShopper Auto-Sync</name>
 	<author>Necati Meral</author>
 	<authorEmail>necati_meral@yahoo.de</authorEmail>
 	<creationDate>June 2021</creationDate>
@@ -8,13 +8,13 @@
 	<license>MIT License</license>
 	<authorUrl>https://github.com/NecatiMeral/joomla-ninox</authorUrl>
 	<version>1.0</version>
-	<description>Ninox Auto-Sync user plugin.</description>
+	<description>Ninox Auto-Sync virtuemart vmshopper plugin.</description>
 	<scriptfile>script.php</scriptfile> 
 	<install>
 	</install>
 	<update></update>
 	<files>
-		<filename plugin="ninox_user">ninox_user.php</filename>
+		<filename plugin="ninox_vmshopper">ninox_vmshopper.php</filename>
 		<filename>index.html</filename>
 	</files>
 </extension>

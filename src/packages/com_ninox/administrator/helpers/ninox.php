@@ -140,6 +140,10 @@ class NinoxHelper {
 				$contacts[$i]->id = $userMappings[$userId]['ninoxId'];
 			}
 		}
+
+		VmConfig::importVMPlugins('ninox');
+		$dispatcher = JDispatcher::getInstance();
+		$dispatcher->trigger('ninoxOnBeforeSync', $contacts);
 		
 		$ch = curl_init("https://api.ninoxdb.de/v1/teams/$teamId/databases/$databaseId/tables/$tableId/records");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -344,22 +348,136 @@ class NinoxHelper {
 	{
 		$mappings = self::getMappings();
 		$convertedUsers = array();
+		$userIds = array_column($users, 'id');
 
-		foreach ($users as $user) 
+		// Add fixed `users` prefix to user keys, to make matching easier
+		$prefixedUsers = self::addPrefixToArrayItemKeys($users, 'users.');
+
+		// load virtuemart records
+		$vmInfos = self::tryLoadVirtuemartUserinfos($userIds, $mappings);
+
+		if(is_array($vmInfos))
+		{
+			// $users isn't a associative array, so handle it manually
+			for ($i=0; $i < count($prefixedUsers); $i++) 
+			{
+				$userKey = $prefixedUsers[$i]['users.id'];
+				if(array_key_exists($userKey, $vmInfos))
+				{
+					$prefixedUsers[$i] = array_merge($prefixedUsers[$i], $vmInfos[$userKey]);
+				}
+			}
+		}
+
+		foreach ($prefixedUsers as $user) 
 		{
 			$fields = array();
 			foreach ($mappings as $map) 
 			{
-				$propName = self::removePrefix($map->joomla_prop, 'users.');
-				$ninoxPropName = $map->ninox_prop;
-
-				$fields[$ninoxPropName] = $user[$propName];
+				$fields[$map->ninox_prop] = $user[$map->joomla_prop];
 			}
+
 			$contact = new stdClass();
 			$contact->fields = $fields;
 			$convertedUsers[] = $contact;
 		}
 		return $convertedUsers;
+	}
+
+	static function addPrefixToArrayItemKeys($array, $prefix)
+	{
+		$result = array();
+
+		foreach ($array as $key => $value) 
+		{
+			$prefixedItem = array_combine(
+				array_map(
+					function($k) use ($prefix){ return $prefix . $k; },
+					array_keys($value)
+				),
+				$value
+			);
+
+			$result[$key] = $prefixedItem;
+		}
+		return $result;
+	}
+
+	static function tryLoadVirtuemartUserinfos($userIds, $mappings)
+	{
+		$prefix = 'virtuemart_userinfos.';
+		$db = Factory::getDbo();
+		$fields = array();
+
+		foreach ($mappings as $mapItem) 
+		{
+			if(substr($mapItem->joomla_prop, 0, strlen($prefix)) == $prefix)
+			{
+				$fields[] = self::removePrefix($mapItem->joomla_prop, $prefix);
+			}
+		}
+
+		if(count($fields) == 0)
+		{
+			return false;
+		}
+
+		$fields[] = 'virtuemart_user_id';
+
+		$query = $db
+			->getQuery(true)
+			->select($db->quoteName($fields))
+			->from($db->quoteName('#__virtuemart_userinfos'))
+			->where($db->quoteName('virtuemart_user_id') . ' IN ( ' . implode(', ', $userIds) . ')');
+
+		$db->setQuery($query);
+		$userinfos = $db->loadAssocList('virtuemart_user_id');
+
+		// Make sure to maunally add users without userinfo to result
+		foreach ($userIds as $userId) 
+		{
+			if(array_key_exists($userId, $userinfos))
+			{
+				continue;
+			}
+
+			$userinfo = array();
+			foreach ($fields as $field) 
+			{
+				$userinfo[$field] = '';
+			}
+
+			$userinfos[$userId] = $userinfo;
+		}
+
+		// Fix or set title field
+		// Consider moving this to a separate plugin
+		if(in_array('title', $fields))
+		{
+			foreach ($userinfos as $key => $userinfo) 
+			{
+				if(array_key_exists('title', $userinfo))
+				{
+					switch (strtolower($userinfo['title'])) 
+					{
+						case 'mr':
+							$userinfos[$key]['title'] = 1;
+							break;
+						case 'mrs':
+							$userinfos[$key]['title'] = 2;
+							break;
+						default:
+							$userinfos[$key]['title'] = 3;
+					}
+				}
+				else
+				{
+					$userinfos[$key]['title'] = 3;
+				}
+			}
+		}
+
+		return self::addPrefixToArrayItemKeys($userinfos, $prefix);
 	}
 	
 	static function removePrefix($text, $prefix) 

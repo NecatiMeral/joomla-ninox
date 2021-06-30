@@ -14,6 +14,7 @@
 	<files folder="packages">
 		<file type="component" id="com_ninox">com_ninox.zip</file>
 		<file type="plugin" id="ninox_user" group="user">ninox_user.zip</file>
+		<file type="plugin" id="ninox_vmshopper" group="vmshopper">ninox_vmshopper.zip</file>
 	</files>
     <updateservers>
 		<server type="extension" priority="1" name="Ninox Auto-Sync Updates">https://raw.githubusercontent.com/NecatiMeral/joomla-ninox/main/updates.xml</server>
