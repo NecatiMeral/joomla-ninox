@@ -17,6 +17,7 @@ class NinoxModelNinox extends JModelLegacy {
 	protected $include_unconfirmed;
 	protected $registered_after;
 	protected $last_login_after;
+	protected $include_already_synced;
 
 	public function __construct($config = array()) {
 		$this->users_table = '#__users';
@@ -24,6 +25,7 @@ class NinoxModelNinox extends JModelLegacy {
 		$this->include_unconfirmed = 0;
 		$this->registered_after = '';
 		$this->last_login_after = '';
+		$this->include_already_synced = 0;
 		parent::__construct($config);
 	}
 
@@ -65,6 +67,7 @@ class NinoxModelNinox extends JModelLegacy {
 		$db = $this->getDbo();
 		$this->include_blocked = $input->get('include_blocked', 0, 'INT');
 		$this->include_unconfirmed = $input->get('include_unconfirmed', 0, 'INT');
+		$this->include_already_synced = $input->get('include_already_synced', 0, 'INT');
 		$registered_after = $input->get('registered_after', '', 'STR');
 		$last_login_after = $input->get('last_login_after', '', 'STR');
 		$this->registered_after = ($registered_after) ? JFactory::getDate($registered_after)->toSQL() : '0000-00-00 00:00:00';
@@ -88,7 +91,7 @@ class NinoxModelNinox extends JModelLegacy {
 		$total = (int)$db->loadResult();
 		$return['total'] = $total;
 		
-		$userDtos = $this->getUsers(true);
+		$userDtos = $this->getUsers($this->include_already_synced);
 
 		$return['exported'] = count($userDtos);
 		if(count($userDtos) > 0)

@@ -138,6 +138,15 @@ $document->addScriptDeclaration($js);
 				</div>
 		
 				<div class="control-group">
+					<label class="hasTooltip control-label" for="include_already_synced" title="<?php echo JText::_('COM_NINOX_INCLUDE_ALREADY_SYNCED_USERS_TOOLTIP'); ?>">
+						<?php echo JText::_('COM_NINOX_INCLUDE_ALREADY_SYNCED_USERS'); ?>
+					</label>
+					<div class="controls">
+						<?php echo NinoxHtmlHelper::getBooleanInput('include_already_synced', '0'); ?>
+					</div>
+				</div>
+		
+				<div class="control-group">
 					<label class="hasTooltip control-label" for="registered_after" title="<?php echo JText::_('COM_NINOX_REGISTERED_DATE_FILTER_TOOLTIP'); ?>">
 						<?php echo JText::_('COM_NINOX_REGISTERED_DATE'); ?>
 					</label>

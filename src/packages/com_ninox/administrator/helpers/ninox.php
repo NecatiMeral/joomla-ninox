@@ -140,6 +140,10 @@ class NinoxHelper {
 				$contacts[$i]->id = $userMappings[$userId]['ninoxId'];
 			}
 		}
+
+		VmConfig::importVMPlugins('ninox');
+		$dispatcher = JDispatcher::getInstance();
+		$dispatcher->trigger('ninoxOnBeforeSync', $contacts);
 		
 		$ch = curl_init("https://api.ninoxdb.de/v1/teams/$teamId/databases/$databaseId/tables/$tableId/records");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -427,9 +431,53 @@ class NinoxHelper {
 			->where($db->quoteName('virtuemart_user_id') . ' IN ( ' . implode(', ', $userIds) . ')');
 
 		$db->setQuery($query);
-		$assocs = $db->loadAssocList('virtuemart_user_id');
+		$userinfos = $db->loadAssocList('virtuemart_user_id');
 
-		return self::addPrefixToArrayItemKeys($assocs, $prefix);
+		// Make sure to maunally add users without userinfo to result
+		foreach ($userIds as $userId) 
+		{
+			if(array_key_exists($userId, $userinfos))
+			{
+				continue;
+			}
+
+			$userinfo = array();
+			foreach ($fields as $field) 
+			{
+				$userinfo[$field] = '';
+			}
+
+			$userinfos[$userId] = $userinfo;
+		}
+
+		// Fix or set title field
+		// Consider moving this to a separate plugin
+		if(in_array('title', $fields))
+		{
+			foreach ($userinfos as $key => $userinfo) 
+			{
+				if(array_key_exists('title', $userinfo))
+				{
+					switch (strtolower($userinfo['title'])) 
+					{
+						case 'mr':
+							$userinfos[$key]['title'] = 1;
+							break;
+						case 'mrs':
+							$userinfos[$key]['title'] = 2;
+							break;
+						default:
+							$userinfos[$key]['title'] = 3;
+					}
+				}
+				else
+				{
+					$userinfos[$key]['title'] = 3;
+				}
+			}
+		}
+
+		return self::addPrefixToArrayItemKeys($userinfos, $prefix);
 	}
 	
 	static function removePrefix($text, $prefix) 
